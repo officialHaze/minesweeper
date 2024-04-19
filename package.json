@@ -1,0 +1,13 @@
+{
+  "name": "minesweeper",
+  "version": "0.0.1",
+  "description": "Minesweeper game",
+  "main": "index.js",
+  "scripts": {
+    "build": "clear && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Moinak Dey",
+  "license": "ISC"
+}
+
