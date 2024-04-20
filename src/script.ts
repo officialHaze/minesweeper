@@ -2,28 +2,25 @@ class Board {
   private rows: number;
   private cols: number;
 
-  private grid: number[][] = [];
-
-  private mineRows: number[] = [];
-  private mineCols: number[] = [];
+  private mineInRows: number[] = [];
+  private mineInCols: number[] = [];
 
   constructor(rows: number, cols: number) {
     this.rows = rows;
     this.cols = cols;
   }
 
-  public createMines(totalMines: number) {
+  public addMines(totalMines: number) {
     console.log({ totalMines });
-    // For every mine create a new random position
+
     if (totalMines > 0) {
       const { mineRow, mineCol } = this.generateRandomMinePos();
-
-      if (!this.mineRows.includes(mineRow) && !this.mineCols.includes(mineCol)) {
-        this.mineRows[mineRow] = 2;
-        this.mineCols[mineCol] = 2;
-        this.createMines(totalMines - 1);
+      if (!this.mineInRows.includes(mineRow) && !this.mineInCols.includes(mineCol)) {
+        this.mineInRows.push(mineRow);
+        this.mineInCols.push(mineCol);
+        this.addMines(--totalMines);
       } else {
-        this.createMines(totalMines);
+        this.addMines(totalMines);
       }
     }
   }
@@ -31,13 +28,10 @@ class Board {
   // Generate a random position for the mine
   private generateRandomMinePos() {
     const randomRow = Math.floor(Math.random() * this.rows);
-    console.log(randomRow);
+    // console.log(randomRow);
 
     const randomCol = Math.floor(Math.random() * this.cols);
-    console.log(randomCol);
-
-    // this.mineRow = randomRow;
-    // this.mineCol = randomCol;
+    // console.log(randomCol);
 
     return { mineRow: randomRow, mineCol: randomCol };
   }
@@ -49,12 +43,22 @@ class Board {
     const currentColStr = thisCell.getAttribute("id")?.split("-")[1];
     const currentCol = currentColStr ? parseInt(currentColStr) : 0;
 
-    console.log("Mine positions: ", this.mineRows, this.mineCols);
+    // console.log(this.mineInRows, this.mineInCols);
 
-    if (this.mineRows[currentRow] === 2 && this.mineCols[currentCol] === 2) {
-      thisCell.innerText = "0";
-      alert("Game Over");
-      return;
+    if (this.mineInRows.includes(currentRow)) {
+      // Get the idx of the position of mine in row
+      const idxOfMineInRow = this.mineInRows.indexOf(currentRow);
+      // At the same idx in the mine in cols array, there should be a value
+      // reprsenting the col number
+      const colNum = this.mineInCols[idxOfMineInRow];
+
+      // If this col number is equal to the current col
+      // then its a mine
+      if (colNum === currentCol) {
+        thisCell.innerText = "0";
+        alert("Game Over");
+        return;
+      }
     }
 
     thisCell.innerText = "1";
@@ -74,13 +78,13 @@ class Board {
       for (let j = 0; j < this.cols; j++) {
         // Create a cell
         const cell = document.createElement("td");
-        cell.setAttribute("id", `${i}-${j}`); // id = row-col
+        cell.setAttribute("id", `${i}-${j}`); // id = row-col. Current row and col
         cell.innerText = "x";
         // Append the cell to the row
         tableRow.appendChild(cell);
 
         // For every cell listen to any click event and handle it accordingly
-        cell.addEventListener("click", (ev) => this.handleCellClick(cell, ev));
+        cell.addEventListener("click", ev => this.handleCellClick(cell, ev));
       }
     }
   }
@@ -91,6 +95,13 @@ class Board {
   }
 }
 
-const board = new Board(3, 3); // create a new board with 3 x 3 dimensions
-board.draw();
-board.createMines(2);
+class Game {
+  public static start() {
+    const board = new Board(4, 4); // create a new board with 4 x 4 dimensions
+    board.draw();
+    board.addMines(4); // Add 4 mines
+  }
+}
+
+// Start the game
+Game.start();
